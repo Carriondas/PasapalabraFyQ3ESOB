@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="pasapalabra.css">
+<title>Pasapalabra Física y Química - Nivel Fácil</title>
+</head>
+<body>
+
+<h1>Pasapalabra - Física y Química (Nivel Fácil)</h1>
+
+<div id="rosco"></div>
+
+<div id="pregunta"></div>
+<input type="text" id="respuesta" autocomplete="off" placeholder="Escribe tu respuesta aquí" />
+<br />
+<button id="enviar">Enviar</button>
+<button id="pasar">Pasapalabra</button>
+<button id="reiniciar" style="display:none;">Reiniciar juego</button>
+
+<div id="resultado"></div>
+
+<script>
+  const datos = [
+    {letra:'A', pregunta:'Estado de la materia que tiene forma y volumen definidos. Empieza por A.', respuesta:'aire'},
+    {letra:'B', pregunta:'Partícula con carga negativa del átomo. Empieza por B.', respuesta:'beta'},
+    {letra:'C', pregunta:'Unidad de medida de temperatura, empieza por C.', respuesta:'celsius'},
+    {letra:'D', pregunta:'Instrumento para medir fuerza, empieza por D.', respuesta:'dinamómetro'},
+    {letra:'E', pregunta:'Elemento químico que tiene número atómico 99 y empieza por E.', respuesta:'einsteinio'},
+    {letra:'F', pregunta:'Fenómeno de cambio de sólido a líquido, empieza por F.', respuesta:'fusión'},
+    {letra:'G', pregunta:'Unidad de medida de la gravedad, empieza por G.', respuesta:'gal'},
+    {letra:'H', pregunta:'Elemento químico cuyo símbolo es H. Empieza por H.', respuesta:'hidrógeno'},
+    {letra:'I', pregunta:'Propiedad que hace que un objeto no cambie su movimiento. Empieza por I.', respuesta:'inercia'},
+    {letra:'J', pregunta:'Unidad de energía, empieza por J.', respuesta:'joule'},
+    {letra:'K', pregunta:'Unidad de temperatura del sistema internacional, empieza por K.', respuesta:'kelvin'},
+    {letra:'L', pregunta:'Estado de la materia que puede fluir. Empieza por L.', respuesta:'líquido'},
+    {letra:'M', pregunta:'Magnitud que mide la cantidad de materia, empieza por M.', respuesta:'masa'},
+    {letra:'N', pregunta:'Unidad de fuerza, empieza por N.', respuesta:'newton'},
+    {letra:'O', pregunta:'Elemento químico con símbolo O, empieza por O.', respuesta:'oxígeno'},
+    {letra:'P', pregunta:'Unidad de presión, empieza por P.', respuesta:'pascal'},
+    {letra:'Q', pregunta:'Campo de la ciencia que estudia las sustancias y sus cambios, empieza por Q.', respuesta:'química'},
+    {letra:'R', pregunta:'Sustancia que reacciona en una reacción química, empieza por R.', respuesta:'reactivo'},
+    {letra:'S', pregunta:'Estado de la materia con forma y volumen definidos, empieza por S.', respuesta:'sólido'},
+    {letra:'T', pregunta:'Magnitud que mide la duración de un fenómeno, empieza por T.', respuesta:'tiempo'},
+    {letra:'U', pregunta:'Unidad de medida de la intensidad eléctrica, empieza por U.', respuesta:'unidad'},
+    {letra:'V', pregunta:'Magnitud que mide el espacio que ocupa un cuerpo, empieza por V.', respuesta:'volumen'},
+    {letra:'W', pregunta:'Unidad de potencia eléctrica, empieza por W.', respuesta:'watio'},
+    {letra:'X', pregunta:'Radiación electromagnética usada en rayos X, empieza por X.', respuesta:'x'},
+    {letra:'Y', pregunta:'Elemento químico cuyo símbolo es Y, empieza por Y.', respuesta:'ytrio'},
+    {letra:'Z', pregunta:'Elemento químico con símbolo Zn, empieza por Z.', respuesta:'zinc'},
+  ];
+
+  function normalizar(str) {
+    return str.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s/g, "");
+  }
+
+  let indiceActual = 0;
+  const roscoDiv = document.getElementById('rosco');
+  const preguntaDiv = document.getElementById('pregunta');
+  const respuestaInput = document.getElementById('respuesta');
+  const enviarBtn = document.getElementById('enviar');
+  const pasarBtn = document.getElementById('pasar');
+  const reiniciarBtn = document.getElementById('reiniciar');
+  const resultadoDiv = document.getElementById('resultado');
+
+  let estadoPreguntas = datos.map(p => ({...p, estado: 'pendiente'})); 
+
+  function crearRosco() {
+    roscoDiv.innerHTML = '';
+    estadoPreguntas.forEach(p => {
+      const letraDiv = document.createElement('div');
+      letraDiv.classList.add('letra');
+      letraDiv.id = 'letra-' + p.letra;
+      letraDiv.textContent = p.letra;
+      roscoDiv.appendChild(letraDiv);
+    });
+  }
+
+  function mostrarPregunta() {
+    let vueltas = 0;
+    while (estadoPreguntas[indiceActual].estado !== 'pendiente' && vueltas < estadoPreguntas.length) {
+      indiceActual = (indiceActual + 1) % estadoPreguntas.length;
+      vueltas++;
+    }
+    if (vueltas === estadoPreguntas.length && estadoPreguntas[indiceActual].estado !== 'pendiente') {
+      terminarJuego();
+      return;
+    }
+    preguntaDiv.textContent = estadoPreguntas[indiceActual].pregunta;
+    respuestaInput.value = '';
+    respuestaInput.focus();
+  }
+
+  function actualizarRosco() {
+    estadoPreguntas.forEach(p => {
+      const letraDiv = document.getElementById('letra-' + p.letra);
+      letraDiv.classList.remove('correcta', 'incorrecta');
+      if (p.estado === 'correcto') letraDiv.classList.add('correcta');
+      if (p.estado === 'incorrecto') letraDiv.classList.add('incorrecta');
+    });
+  }
+
+  function comprobarRespuesta() {
+    const respuestaUsuario = normalizar(respuestaInput.value);
+    const respuestaCorrecta = normalizar(estadoPreguntas[indiceActual].respuesta);
+    const letraEsperada = estadoPreguntas[indiceActual].letra.toLowerCase();
+
+    if (!respuestaUsuario) {
+      alert('Por favor, escribe una respuesta.');
+      return;
+    }
+    if (respuestaUsuario[0] !== letraEsperada) {
+      alert(`La respuesta debe empezar por la letra "${estadoPreguntas[indiceActual].letra}".`);
+      return;
+    }
+
+    if (respuestaUsuario === respuestaCorrecta) {
+      estadoPreguntas[indiceActual].estado = 'correcto';
+    } else {
+      estadoPreguntas[indiceActual].estado = 'incorrecto';
+    }
+    actualizarRosco();
+    siguientePregunta();
+  }
+
+  function pasarPregunta() {
+    indiceActual = (indiceActual + 1) % estadoPreguntas.length;
+    mostrarPregunta();
+  }
+
+  function siguientePregunta() {
+    if (estadoPreguntas.every(p => p.estado !== 'pendiente')) {
+      terminarJuego();
+      return;
+    }
+    do {
+      indiceActual = (indiceActual + 1) % estadoPreguntas.length;
+    } while (estadoPreguntas[indiceActual].estado !== 'pendiente');
+    mostrarPregunta();
+  }
+
+  function terminarJuego() {
+    const correctas = estadoPreguntas.filter(p => p.estado === 'correcto').length;
+    const incorrectas = estadoPreguntas.filter(p => p.estado === 'incorrecto').length;
+    preguntaDiv.textContent = '¡Juego terminado!';
+    respuestaInput.style.display = 'none';
+    enviarBtn.style.display = 'none';
+    pasarBtn.style.display = 'none';
+    reiniciarBtn.style.display = 'inline-block';
+
+    resultadoDiv.textContent = `Respuestas correctas: ${correctas} | Respuestas incorrectas: ${incorrectas}`;
+  }
+
+  function reiniciarJuego() {
+    estadoPreguntas.forEach(p => p.estado = 'pendiente');
+    indiceActual = 0;
+    resultadoDiv.textContent = '';
+    respuestaInput.style.display = 'inline-block';
+    enviarBtn.style.display = 'inline-block';
+    pasarBtn.style.display = 'inline-block';
+    reiniciarBtn.style.display = 'none';
+    actualizarRosco();
+    mostrarPregunta();
+  }
+
+  enviarBtn.addEventListener('click', comprobarRespuesta);
+  pasarBtn.addEventListener('click', pasarPregunta);
+  reiniciarBtn.addEventListener('click', reiniciarJuego);
+  respuestaInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') {
+      comprobarRespuesta();
+    }
+  });
+
+  crearRosco();
+  actualizarRosco();
+  mostrarPregunta();
+</script>
+
+</body>
+</html>
