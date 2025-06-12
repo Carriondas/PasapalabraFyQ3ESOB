@@ -1,0 +1,81 @@
+  body {
+    font-family: Arial, sans-serif;
+    background: transparent; /* Fondo transparente */
+    color: #4caf50; /* Verde */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    color: #2e7d32; /* Verde más oscuro para el título */
+  }
+  #rosco {
+    display: flex;
+    flex-wrap: wrap;
+    width: 320px;
+    margin-bottom: 20px;
+  }
+  .letra {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(76, 175, 80, 0.2); /* Verde clarito con transparencia */
+    margin: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    user-select: none;
+    color: #2e7d32;
+    transition: background-color 0.3s;
+  }
+  .letra.correcta {
+    background: #4caf50; /* Verde fuerte */
+    color: white;
+  }
+  .letra.incorrecta {
+    background: #81c784; /* Verde más suave para incorrecta */
+    color: white;
+  }
+  #pregunta {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    min-height: 60px;
+    text-align: center;
+    max-width: 400px;
+  }
+  #respuesta {
+    width: 300px;
+    padding: 8px;
+    font-size: 1em;
+    text-align: center;
+    border: 2px solid #4caf50;
+    border-radius: 5px;
+    background: transparent;
+    color: #2e7d32;
+  }
+  #respuesta::placeholder {
+    color: #81c784;
+  }
+  button {
+    padding: 10px 20px;
+    margin: 10px 5px 0 5px;
+    font-size: 1em;
+    border: 2px solid #4caf50;
+    border-radius: 5px;
+    cursor: pointer;
+    background: transparent;
+    color: #4caf50;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  button#enviar:hover,
+  button#pasar:hover,
+  button#reiniciar:hover {
+    background-color: #4caf50;
+    color: white;
+  }
+  #resultado {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #2e7d32;
+  }
